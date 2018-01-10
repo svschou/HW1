@@ -1,7 +1,7 @@
 ## HW 1
 ## SI 364 W18
 ## 1000 points
-
+from flask import Flask, request
 import json
 import requests
 import html
@@ -36,6 +36,29 @@ def get_movie_data(moviename):
 
 	response = requests.get(base_url, params=params_dict)
 	return response.text # QUESTION: WANT THIS AS A JSON DICTIONARY OR IS JUST THE DICTIONARY FORMATTED TEXT FINE?
+
+# PROBLEM 3
+@app.route('/question')
+def enter_favorite_number():
+	s = """<!DOCTYPE html>
+<html>
+<body>
+<form action="/question_result" method="POST"> 
+  ENTER YOUR FAVORITE NUMBER:<br>
+  <input type="text" name="number" value="">
+  <br>
+  <input type="submit" value="SUBMIT">
+</form>
+</body>
+</html>"""
+	return s
+
+@app.route('/question_result', methods = ['POST', 'GET'])
+def display_double_number():
+	if request.method == 'POST':
+		fav_num = request.form['number'] ## ACCESSING DATA FROM /question
+		double_fav_num = 2*int(fav_num)
+	return "Double your favorite number is {}".format(double_fav_num)
 
 
 if __name__ == '__main__':
