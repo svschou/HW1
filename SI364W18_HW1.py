@@ -2,6 +2,10 @@
 ## SI 364 W18
 ## 1000 points
 
+import json
+import requests
+import html
+
 #################################
 
 ## List below here, in a comment/comments, the people you worked with on this assignment AND any resources you used to find code (50 point deduction for not doing so). If none, write "None".
@@ -19,9 +23,20 @@ app.debug = True
 def hello_to_you():
     return 'Hello!'
 
+# PROBLEM 1
 @app.route('/class')
 def hello_to_class():
 	return "Welcome to SI 364!"
+
+# PROBLEM 2
+@app.route('/movie/<moviename>')
+def get_movie_data(moviename):
+	base_url = "https://itunes.apple.com/search"
+	params_dict = {"term":moviename,"entity":"movie"}
+
+	response = requests.get(base_url, params=params_dict)
+	return response.text # QUESTION: WANT THIS AS A JSON DICTIONARY OR IS JUST THE DICTIONARY FORMATTED TEXT FINE?
+
 
 if __name__ == '__main__':
     app.run()
