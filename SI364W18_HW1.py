@@ -10,6 +10,7 @@ import html
 
 ## List below here, in a comment/comments, the people you worked with on this assignment AND any resources you used to find code (50 point deduction for not doing so). If none, write "None".
 
+# For Problem 4, I used the Star Wars API - documentation found at: https://swapi.co/documentation.
 
 
 ## [PROBLEM 1] - 150 points
@@ -29,13 +30,14 @@ def hello_to_class():
 	return "Welcome to SI 364!"
 
 # PROBLEM 2
-@app.route('/movie/<moviename>')
+@app.route("/movie/<moviename>")
 def get_movie_data(moviename):
 	base_url = "https://itunes.apple.com/search"
 	params_dict = {"term":moviename,"entity":"movie"}
 
 	response = requests.get(base_url, params=params_dict)
-	return response.text # QUESTION: WANT THIS AS A JSON DICTIONARY OR IS JUST THE DICTIONARY FORMATTED TEXT FINE?
+
+	return response.text 
 
 # PROBLEM 3
 @app.route('/question',methods=["GET","POST"])
@@ -47,8 +49,9 @@ def enter_favorite_number():
         <input type="text" name="number" value=""><br>
         <input type="submit" value="SUBMIT">
         </form></body></html>"""
-    if request.method == 'POST':
-        fav_num = request.form['number'] ## ACCESSING DATA FROM /question
+
+    if request.method == "POST":
+        fav_num = request.form["number"]
 
         double_fav_num = 2*int(fav_num)
         return_string = "Double your favorite number is {}".format(double_fav_num)
@@ -58,52 +61,45 @@ def enter_favorite_number():
     else:
         return form_string
 
-# @app.route('/question_result', methods = ['POST', 'GET'])
-# def display_double_number():
-# 	if request.method == 'POST':
-# 		fav_num = request.form['number'] ## ACCESSING DATA FROM /question
-# 		double_fav_num = 2*int(fav_num)
-# 	return "Double your favorite number is {}".format(double_fav_num)
-
 # PROBLEM 4
-@app.route('/problem4form')
+@app.route("/problem4form", methods = ["GET", "POST"])
 def get_user_info():
-	s = """<!DOCTYPE html>
+	title_string = """<h2>
+				Star Wars Character Quiz
+				</h2>
+				"""
+	form_string = """<!DOCTYPE html>
 		<html>
 			<body>
-				<h1>
-				Create a profile
-				</h1>
-				<form action="/problem4_result" method="POST">
-  					Enter username:<br>
-  					<input type="text" name="username" value="">
-  					<br>
-  					Enter a password:<br>
-  					<input type="text" name="password" value="">
-  					<br>
-  					Reenter password:<br>
-  					<input type="text" name="samepassword" value="">
-  					<br>
+				<form action="http://localhost:5000/problem4form" method="POST">
+  					Enter a number (1-5):<br><br>
+  					<input type="text" name="starnum" value=""><br><br>
+  					Choose a gadget: <br><br>
+  					<input type="radio" name="gadget" value="Lightsaber"> Lightsaber <br>
+  					<input type="radio" name="gadget" value="Blaster"> Blaster <br>
+  					<input type="radio" name="gadget" value="Bowcaster"> Bowcaster <br><br>
   					<input type="submit" value="SUBMIT">
 				</form>
 			</body>
 		</html>"""
-	return s
 
-@app.route('/problem4_result', methods = ['POST', 'GET'])
-def display_user_info():
-	if request.method == 'POST':
-		password = request.form['password']
-		same_password = request.form['samepassword']
-		username = request.form['username']
+	if request.method == "POST":
+		star_num = request.form["starnum"]
+		star_gadget = request.form["gadget"]
+		base_url = "https://swapi.co/api/people/" + star_num + "/"
+		response = requests.get(base_url)
 
-		if password != same_password:
-			return "Passwords you enetered were not the same. Please try again."
-		else:
-			#s = "Username: " + username + "<br>" + "Password: " + password
-			return "Username: " + username + "<br>" + "Password: " + password
+		star_wars_char_dict = json.loads(response.text)
+		star_char = star_wars_char_dict["name"]
+		star_color = star_wars_char_dict["eye_color"]
+		if star_char == "Leia Organa":
+			star_color = "blue" # because sorry no one wants a brown lightsaber
 
-	#return "Double your favorite number is {}".format(double_fav_num)
+		char_string = "Congratulations! You are " + star_char + " and you save the galaxy with a " + star_color + " " + star_gadget + ".<br><br>"
+
+		return title_string + char_string + "May the Force be with you.<br><br>" + form_string
+	else:
+		return title_string + form_string
 
 if __name__ == '__main__':
     app.run(use_reloader=True, debug=True)
