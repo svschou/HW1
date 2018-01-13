@@ -38,31 +38,75 @@ def get_movie_data(moviename):
 	return response.text # QUESTION: WANT THIS AS A JSON DICTIONARY OR IS JUST THE DICTIONARY FORMATTED TEXT FINE?
 
 # PROBLEM 3
-@app.route('/question')
+@app.route('/question',methods=["GET","POST"])
 def enter_favorite_number():
+    form_string = """<!DOCTYPE html>
+		<html><body>
+		<form action="http://localhost:5000/question" method="POST">
+        Enter Your Favorite Number:<br>
+        <input type="text" name="number" value=""><br>
+        <input type="submit" value="SUBMIT">
+        </form></body></html>"""
+    if request.method == 'POST':
+        fav_num = request.form['number'] ## ACCESSING DATA FROM /question
+
+        double_fav_num = 2*int(fav_num)
+        return_string = "Double your favorite number is {}".format(double_fav_num)
+        form_string = return_string + form_string
+
+        return form_string
+    else:
+        return form_string
+
+# @app.route('/question_result', methods = ['POST', 'GET'])
+# def display_double_number():
+# 	if request.method == 'POST':
+# 		fav_num = request.form['number'] ## ACCESSING DATA FROM /question
+# 		double_fav_num = 2*int(fav_num)
+# 	return "Double your favorite number is {}".format(double_fav_num)
+
+# PROBLEM 4
+@app.route('/problem4form')
+def get_user_info():
 	s = """<!DOCTYPE html>
-<html>
-<body>
-<form action="/question_result" method="POST"> 
-  ENTER YOUR FAVORITE NUMBER:<br>
-  <input type="text" name="number" value="">
-  <br>
-  <input type="submit" value="SUBMIT">
-</form>
-</body>
-</html>"""
+		<html>
+			<body>
+				<h1>
+				Create a profile
+				</h1>
+				<form action="/problem4_result" method="POST">
+  					Enter username:<br>
+  					<input type="text" name="username" value="">
+  					<br>
+  					Enter a password:<br>
+  					<input type="text" name="password" value="">
+  					<br>
+  					Reenter password:<br>
+  					<input type="text" name="samepassword" value="">
+  					<br>
+  					<input type="submit" value="SUBMIT">
+				</form>
+			</body>
+		</html>"""
 	return s
 
-@app.route('/question_result', methods = ['POST', 'GET'])
-def display_double_number():
+@app.route('/problem4_result', methods = ['POST', 'GET'])
+def display_user_info():
 	if request.method == 'POST':
-		fav_num = request.form['number'] ## ACCESSING DATA FROM /question
-		double_fav_num = 2*int(fav_num)
-	return "Double your favorite number is {}".format(double_fav_num)
+		password = request.form['password']
+		same_password = request.form['samepassword']
+		username = request.form['username']
 
+		if password != same_password:
+			return "Passwords you enetered were not the same. Please try again."
+		else:
+			#s = "Username: " + username + "<br>" + "Password: " + password
+			return "Username: " + username + "<br>" + "Password: " + password
+
+	#return "Double your favorite number is {}".format(double_fav_num)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(use_reloader=True, debug=True)
 
 
 ## [PROBLEM 2] - 250 points
