@@ -75,29 +75,48 @@ def get_user_info():
   					Enter a number (1-5):<br><br>
   					<input type="text" name="starnum" value=""><br><br>
   					Choose a gadget: <br><br>
-  					<input type="radio" name="gadget" value="Lightsaber"> Lightsaber <br>
-  					<input type="radio" name="gadget" value="Blaster"> Blaster <br>
-  					<input type="radio" name="gadget" value="Bowcaster"> Bowcaster <br><br>
+  					<input type="checkbox" name="gadget" value="Lightsaber"> Lightsaber <br>
+  					<input type="checkbox" name="gadget" value="Blaster"> Blaster <br>
+  					<input type="checkbox" name="gadget" value="Bowcaster"> Bowcaster <br><br>
   					<input type="submit" value="SUBMIT">
 				</form>
 			</body>
 		</html>"""
 
 	if request.method == "POST":
+		# accessing data from form
 		star_num = request.form["starnum"]
 		star_gadget = request.form["gadget"]
-		base_url = "https://swapi.co/api/people/" + star_num + "/"
-		response = requests.get(base_url)
 
-		star_wars_char_dict = json.loads(response.text)
-		star_char = star_wars_char_dict["name"]
-		star_color = star_wars_char_dict["eye_color"]
+		# CHARACTER
+		char_url = "https://swapi.co/api/people/" + star_num + "/"
+		char_response = requests.get(char_url)
+
+		char_dict = json.loads(char_response.text)
+		star_char = char_dict["name"]
+		star_color = char_dict["eye_color"]
 		if star_char == "Leia Organa":
 			star_color = "blue" # because sorry no one wants a brown lightsaber
 
-		char_string = "Congratulations! You are " + star_char + " and you save the galaxy with a " + star_color + " " + star_gadget + ".<br><br>"
+		# PLANET
+		star_planet = char_dict["homeworld"]
+		planet_response = requests.get(star_planet)
 
-		return title_string + char_string + "May the Force be with you.<br><br>" + form_string
+		star_wars_planet_dict = json.loads(planet_response.text)
+		star_planet = star_wars_planet_dict["name"]
+
+		# STARSHIP
+		known_starships = ["3","9","10","11","12"]
+		starship_url = "https://swapi.co/api/starships/" + known_starships[int(star_num)] + "/"
+		starship_response = requests.get(starship_url)
+
+		starship_dict = json.loads(starship_response.text)
+		star_starship = starship_dict["name"]
+
+		char_string = "Congratulations! You are " + star_char + "!<br><br>"
+		backstory_string = "You live on " + star_planet + ", cruise around in a " + star_starship + ", and save the galaxy with a " + star_color + " " + star_gadget + ".<br><br>"
+
+		return title_string + char_string + backstory_string + "May the Force be with you.<br><br>" + form_string
 	else:
 		return title_string + form_string
 
